@@ -1,0 +1,30 @@
+From 8efe52a434267613866c190dc44d5fc729259ffd Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Gero=20Schw=C3=A4ricke?= <gero.schwaericke@posteo.de>
+Date: Tue, 7 May 2024 22:55:54 +0200
+Subject: [PATCH] btusb: ignore MediaTek 0e8d:7961 devices
+
+The ALFA AWUS036AXML I bought doesn't work out of the box. The btusb
+driver tries to load it as a bluetooth device which fails and will
+constantly reset the chip. The device is not advertised to support
+bluetooth, so it might be disabled in some way. To let the wifi driver
+do its thing, we make btusb ignore the device completely.
+---
+ drivers/bluetooth/btusb.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/drivers/bluetooth/btusb.c b/drivers/bluetooth/btusb.c
+index a866b6d63d21..5a81ed989431 100644
+--- a/drivers/bluetooth/btusb.c
++++ b/drivers/bluetooth/btusb.c
+@@ -437,6 +437,8 @@ static const struct usb_device_id blacklist_table[] = {
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0bda, 0xe0, 0x01, 0x01),
+ 	  .driver_info = BTUSB_REALTEK },
+ 
++	{ USB_DEVICE(0x0e8d, 0x7961), .driver_info = BTUSB_IGNORE},
++
+ 	/* MediaTek Bluetooth devices */
+ 	{ USB_VENDOR_AND_INTERFACE_INFO(0x0e8d, 0xe0, 0x01, 0x01),
+ 	  .driver_info = BTUSB_MEDIATEK |
+-- 
+2.43.2
+
